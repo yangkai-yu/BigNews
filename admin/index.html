@@ -6,12 +6,20 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>大事件-后台首页</title>
     <link rel="stylesheet" href="./libs/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./libs/nprogress/nprogress.css" />
     <link rel="stylesheet" href="css/reset.css" />
     <link rel="stylesheet" href="css/iconfont.css" />
     <link rel="stylesheet" href="css/main.css" />
     <script src="./libs/jquery-1.12.4.min.js"></script>
     <!-- 导入bootstrap的js文件 -->
     <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="./libs/nprogress/nprogress.js"></script>
+    <script src="./js/http.js"></script>
+    <style>
+      .to-login {
+        background-color: #1378f0;
+      }
+    </style>
   </head>
 
   <body>
@@ -27,14 +35,14 @@
       </div>
       <!-- 左侧导航栏 -->
       <div class="menu">
-        <div class="level01">
+        <div class="level01 active">
           <a href="main_count.html" target="main_frame"
-            ><i class="iconfont icon-yidiandiantubiao04"></i
+            ><i class="iconfont icon-yidiandiantubiao04 "></i
             ><span>首页</span></a
           >
         </div>
         <div class="level01">
-          <a href="#"
+          <a href="javascript:;"
             ><i class="iconfont icon-icon-article"></i><span>文章管理</span
             ><b class="iconfont icon-arrowdownl"></b
           ></a>
@@ -73,12 +81,7 @@
       <!-- 顶部栏 -->
       <div class="header_bar">
         <div class="user_center_link">
-          <a
-            href="./user.html"
-            onclick="$('#user').trigger('click')"
-            target="main_frame"
-            >个人中心</a
-          >
+          <a href="./user.html" target="main_frame">个人中心</a>
           <img src="images/2.jpg" alt="person" />
           <a href="javascript:void(0)" class="logout"
             ><i class="iconfont icon-tuichu"></i> 退出</a
@@ -86,16 +89,15 @@
         </div>
       </div>
       <!-- 右侧主体内容 -->
+
       <div class="main" id="main_body">
-        <div class="main" id=",main_body">
-          <iframe
-            name="main_frame"
-            src="main_count.html"
-            frameborder="0"
-            width="100%"
-            height="100%"
-          ></iframe>
-        </div>
+        <iframe
+          name="main_frame"
+          src="main_count.html"
+          frameborder="0"
+          width="100%"
+          height="100%"
+        ></iframe>
       </div>
     </div>
     <!--Bootstrap框架 登录错误弹出框-->
@@ -131,7 +133,7 @@
       </div>
       <!-- /.modal-dialog -->
     </div>
-    <script src="./js/http.js"></script>
+
     <script>
       // 2、获取用户信息
       // 请求地址：/admin/user/info
@@ -146,29 +148,44 @@
       $(function() {
         $.ajax({
           type: "get",
-          url: "http://localhost:8080/api/v1/admin/user/info",
-          // //jq里的请求头 headers
+          // BigNew 是一个保存了整个项目 url 地址的对象，通过点语法获取当前请求的 url
+          url: BigNew.user_info,
+          // jq 的 ajax 添加请求头，在全局 $.ajaxSetup() 中添加了，所以这里的可以删掉
           // headers: {
           //   Authorization: localStorage.getItem("token")
           // },
           dataType: "json",
+          // beforeSend: function() {
+          //   NProgress.start();
+          // },
+          // complete: function() {
+          //   NProgress.done();
+          // },
           success: function(response) {
             console.log(response);
             if (response.code === 200) {
+              // 获取用户头像
               const userPic = response.data.userPic;
+              // 获取用户名称
               const nickname = response.data.nickname;
+              // 设置左边用户头像，同时 设置右上角用户头像
               $(".user_info img , .user_center_link img").attr({
                 src: userPic
               });
-              $(".user_info strong").text(nickname);
+              // 设置左边用户名称
+              $(".user_info strong").html(nickname);
+
               //   console.log(nickname);
             }
           }
         });
-
+        // 目标2：用户退出功能 - 删除本地存储中的 token，并跳转回登录页
         $(".logout").click(function(e) {
+          // 阻止默认行为
           e.preventDefault();
+          // 2.1 删除本地存储中的 token
           localStorage.removeItem("token");
+          // 2.2 跳转回登录页
           location.href = "./login.html";
         });
 
@@ -183,40 +200,99 @@
             .siblings()
             // removeClass()移除类名
             .removeClass("active");
+
           //1.2 如果点击的是文章管理：则应该下滑二级列表ul
           if (
             $(this)
-              // next() 方法返回被选元素的后一个同级元素。
+              // // 下一个兄弟元素    next()方法返回被选元素的后一个同级元素。
               .next()
               // hasClass() 方法检查被选元素是否包含指定的类名称。
               .hasClass("level02")
           ) {
             //滑入滑出切换
+            // 切换二级菜单
             $(this)
+              // 下一个兄弟元素next()
               .next()
+              // 滑动切换slideToggle()
               .slideToggle();
             //旋转90度切换
             $(this)
               .find("b")
               .toggleClass("rotate0");
-            //默认选中第一个 : DOM对象
-            $(".level02>li>a")
-              .first()[0]
+            //默认二级菜单选中第一个li里的a
+            // $(".level02>li>a")
+            //   .first()[0]
+            //   .click();
+            // $(this)
+            //   .next()
+            //   .find("li")
+            //   .eq(0)
+            //   .addClass("active")
+            //   .siblings()
+            //   .removeClass("active");
+            // 让默认第一个 li 是为选中状态的黄色
+            // $(this).next().find('li').eq(0).addClass('active').siblings().removeClass();
+            // 需求修复3：默认点击第一个 li 里面的 a 标签，并触发默认行为。
+            // 补充：
+            // JQ  对象的 click()   - 触发点击事件
+            // DOM 对象的 click()   - 触发点击事件 + 触发默认行为
+            // [0]  就是把 jq 对象转换成 dom 对象，用于触发 a 点击在 iframe 打开页面的默认行为
+            $(this)
+              .next()
+              .find("li")
+              .eq(0)
+              .children("a")[0]
               .click();
           } else {
             //如果点击的不是文章管理一级菜单列表，则移除二级列表的选中样式
-            $(".level02>li").removeClass("active");
+            $(".level02 li").removeClass("active");
           }
         });
 
         //2.二级列表
-        $(".level02>li").click(function() {
+        $(".level02 li").click(function() {
           //1.1 排他思想
+
           $(this)
             .addClass("active")
             .siblings()
             .removeClass("active");
+          $(".level01").removeClass("active");
+          // 知识点：
+          //   $(this)      当前元素
+          //   .parent()    父级元素
+          //   .prev()      前一个元素
+          //   .siblings()  兄弟元素
+          $(this)
+            .parent()
+            .prev()
+            .addClass("active")
+            .siblings()
+            .removeClass("active");
         });
+        // // 点击右上角的个人中心，左侧的菜单栏的个人中心高亮
+        // $(".user_center_link a")
+        //   .eq(0)
+        //   .click(function() {
+        //     $("#user")
+        //       .addClass("active")
+        //       .siblings()
+        //       .removeClass("active");
+        //   });
+        // 需求修复1：右上角个人中心点击，左侧菜单中的个人中心高亮
+        // 这里点击 a 标签的时候打开了个人中心页，但是左侧的菜单没有对应高亮，把高亮的指示补充上去。
+        $(".user_center_link a")
+          .eq(0)
+          .click(function() {
+            // 左侧个人中心高亮
+            $("#user")
+              .addClass("active")
+              .siblings()
+              .removeClass("active");
+            // 所有二级菜单的颜色去掉
+            $(".level02 li").removeClass("active");
+          });
       });
     </script>
   </body>
