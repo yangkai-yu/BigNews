@@ -25,39 +25,19 @@ $(function() {
   });
   //2.文件预览
   //1.给file表单元素注册onchange事件
+  // change()就是表单当值改变的时候触发的事件
+  // this事件源，this原生对象，$(this)才是jq对象
+  // files文件列表，伪数组格式，通过索引值获取上传的一张图片
   $("#exampleInputFile").change(function() {
+    console.dir(this);
     //1.2 获取用户选择的图片
     var file = this.files[0];
-    //1.3 将文件转为src路径
+    //1.3 将文件转为src路径  URL.createObjectURL()获取浏览器本地缓存中的文件的路径
     var url = URL.createObjectURL(file);
     //1.4 将url路径赋值给img标签的src
     $(".user_pic").attr("src", url);
   });
 
-  // 3.编辑个人信息(fromdata上传文件)
-  // $("#form").on("submit", function(e) {
-  //   //禁用表单默认提交事件
-  //   e.preventDefault();
-  //   $.ajax({
-  //     url: BigNew.user_edit,
-  //     type: "post",
-  //     dataType: "json",
-  //     data: new FormData(this),
-  //     contentType: false,
-  //     processData: false,
-  //     success: function(backData) {
-  //       console.log(backData);
-  //       if (backData.code == 200) {
-  //         alert("修改成功");
-  //         /*
-  //                   window:            当前页面窗口 user.html
-  //                   window.parent:     当前页面父窗口 index.html
-  //                   */
-  //         parent.window.location.reload();
-  //       }
-  //     }
-  //   });
-  // });
   // 功能3：点击修改按钮，修改了用户信息
   // 知识点：FormData
   // FormData 可以把它看做是特殊的参数数据格式。
@@ -89,14 +69,21 @@ $(function() {
         //    如果想要获取到 iframe 的父级页面，可以通过 window.parent
         //    window.parent 要通过 http 协议方式才能正常获取父页
         if (response.code === 200) {
-          alert("修改成功");
+          $(".modal").modal("show");
+          setTimeout(function() {
+            $(".modal").modal("hide");
+          }, 2000);
+          // alert("修改成功");
           //  方案2：通过 window.parent.$() 选中父级页面元素并修改
           // 获取当前 iframe 中的预览图，和 input.nickname 的值
-          const imgSrc = $("img.user_ipc").attr("scr");
+          const imgSrc = $("img.user_pic").attr("src");
           const nickname = $("input.nickname").val();
+          console.log(imgSrc);
           // 修改父级页面中的图片
           // window.parent.$() 操作的就是父级页面的元素
-          window.parent.$(".user_info img,user_center_link img").attr("src");
+          window.parent
+            .$(".user_info img,.user_center_link img")
+            .attr("src", imgSrc);
           window.parent.$(".user_info strong").html(nickname);
         }
       }
