@@ -133,7 +133,7 @@
           url: BigNew.category_list,
           dataType: "json",
           success: function(response) {
-            console.log(response);
+            // console.log(response);
             if (response.code === 200) {
               $("#selCategory").html(template("hore", response));
             }
@@ -163,7 +163,8 @@
           // 在点击按钮的时候，给外面 type 和 state 重新赋值，用于 ajax 请求
           type = $("#selCategory").val(); // 1。获取分类下拉框的值
           state = $("#selStatus").val(); // 2。获取文章状态下拉框的值
-          page = 1;
+          page = 1; // 3。点击筛选重新初始化当前页为 1
+          // console.log(type);
           // 调用一下封装的 ajax 获取列表的函数
           ajaxGetList();
         });
@@ -177,10 +178,10 @@
             type: "get",
             url: BigNew.article_query,
             data: {
-              type: type, // 文章类别 id
-              state: state, // 文章状态
-              perpage: perpage, // 每页显示条数
-              page: page // 当前页
+              type: type, // 文章类别 id   ''
+              state: state, // 文章状态      ''
+              perpage: perpage, // 每页显示条数   10
+              page: page // 当前页        1
             },
             dataType: "json",
             success: function(response) {
@@ -188,9 +189,11 @@
               if (response.code === 200) {
                 $(".table tbody").html(template("newsTr", response));
                 // ajax 请求成功后，动态生成一个分页器
-                // 获取后端返回的数据总页数
+                // 获取后端返回的数据总totalPage页数
                 const total = response.data.totalPage;
-                // 把 ajax 请求获取的总页数传递，默认显示 page 页
+                console.log(response);
+                console.log(total);
+                // 把 ajax 请求获取的总页数传递，默认显示 page 页   22              1
                 createPagination(total, page);
               }
             }
@@ -206,10 +209,10 @@
           // 2. 创建一个分页器
           $("#pagination-demo").twbsPagination({
             // 总页数
-            totalPages: totalPages,
+            totalPages: totalPages, //22
             // 可见的页数上限
             // 当前第几页
-            startPage: startPage,
+            startPage: startPage, //1
             // 可见的页数上限
             visiblePages: 7,
             first: "首页",
