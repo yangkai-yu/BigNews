@@ -1,77 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>文章列表</title>
-    <link rel="stylesheet" href="./libs/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="./css/reset.css">
-    <link rel="stylesheet" href="./css/iconfont.css">
-    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./libs/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/reset.css" />
+    <link rel="stylesheet" href="./css/iconfont.css" />
+    <link rel="stylesheet" href="./css/main.css" />
+
     <script src="./libs/jquery-1.12.4.min.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
-</head>
-
-<body>
+  </head>
+  <body>
     <div class="container-fluid">
-        <div class="common_title">
-            文章列表
+      <div class="common_title">
+        文章列表
+      </div>
+      <div class="container-fluid common_con">
+        <div class="row opt_btns">
+          <div class="col-xs-6">
+            <form class="form-inline">
+              <select id="selCategory" name="" class="form-control input-sm">
+                <option value="">所有分类</option>
+                <option>未分类</option>
+                <option>奇趣事</option>
+                <option>会生活</option>
+                <option>爱旅行</option>
+              </select>
+              <select id="selStatus" name="" class="form-control input-sm">
+                <option value="">所有状态</option>
+                <option value="草稿">草稿</option>
+                <option value="已发布">已发布</option>
+              </select>
+              <button id="btnSearch" class="btn btn-default btn-sm">
+                筛选
+              </button>
+            </form>
+          </div>
+          <div class="col-xs-6">
+            <a
+              href="article_release.html"
+              class="btn btn-success btn-sm pull-right"
+              id="release_btn"
+              >发表文章</a
+            >
+          </div>
         </div>
-        <div class="container-fluid common_con">
-            <div class="row opt_btns">
-                <div class="col-xs-6">
-                    <form class="form-inline">
-                        <select id="selCategory" name="" class="form-control input-sm">
-                            <option value="">所有分类</option>
-                            <option>未分类</option>
-                            <option>奇趣事</option>
-                            <option>会生活</option>
-                            <option>爱旅行</option>
-                        </select>
-                        <select id="selStatus" name="" class="form-control input-sm">
-                            <option value="">所有状态</option>
-                            <option value="草稿">草稿</option>
-                            <option value="已发布">已发布</option>
-                        </select>
-                        <button id="btnSearch" class="btn btn-default btn-sm">筛选</button>
-                    </form>
-                </div>
-                <div class="col-xs-6">
-                    <a href="article_release.html" class="btn btn-success btn-sm pull-right" id="release_btn">发表文章</a>
-                </div>
-            </div>
-            <table class="table table-striped table-bordered table-hover mp20">
-                <thead>
-                    <tr>
-                        <th>标题</th>
-                        <th>作者</th>
-                        <th>分类</th>
-                        <th class="text-center">发表时间</th>
-                        <th class="text-center">状态</th>
-                        <th class="text-center" width="100">操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>王积千造统最头</td>
-                        <td>杰克</td>
-                        <td>奇趣事</td>
-                        <td class="text-center">2017-06-08 07:08:46</td>
-                        <td class="text-center">已发布</td>
-                        <td class="text-center">
-                            <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
-                            <a href="javascript:void(0);" class="btn btn-danger btn-xs delete">删除</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="row text-center">
-            </div>
-        </div>
+        <table class="table table-striped table-bordered table-hover mp20">
+          <thead>
+            <tr>
+              <th>标题</th>
+              <th>作者</th>
+              <th>分类</th>
+              <th class="text-center">发表时间</th>
+              <th class="text-center">状态</th>
+              <th class="text-center" width="100">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>王积千造统最头</td>
+              <td>杰克</td>
+              <td>奇趣事</td>
+              <td class="text-center">2017-06-08 07:08:46</td>
+              <td class="text-center">已发布</td>
+              <td class="text-center">
+                <a href="article_edit.html" class="btn btn-default btn-xs"
+                  >编辑</a
+                >
+                <a
+                  href="javascript:void(0);"
+                  class="btn btn-danger btn-xs delete"
+                  >删除</a
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="row text-center"></div>
+      </div>
     </div>
-</body>
+    <script src="./js/http.js"></script>
+    <script id="hore" type="text/html">
+      <option value="">所有分类</option>
+      {{ each data}}
+      <option value="{{$value.id}}">{{$value.name}}</option>
+      {{ /each }}
+    </script>
+    <script id="newsTr" type="text/html">
+      {{ each data.data}}
+       <tr>
+          <!-- 标题 -->
+          <td>{{ $value.title }}</td>
+          <!-- 作者 -->
+          <td>{{ $value.author }}</td>
+          <!-- 分类 -->
+          <td>{{ $value.category }}</td>
+          <!-- 发表时间 -->
+          <td class="text-center">{{ $value.date }}</td>
+          <!-- 状态 -->
+          <td class="text-center">{{ $value.state }}</td>
+          <!-- 操作 - 重点注意 -->
+              <td class="text-center">
+                     <!-- 编辑是以打开新页面 article_edit.html 的方式编辑 -->
+                <!-- 难点：如何把文章的 id 传递到新打开的页面中 -->
+                <!-- 技术点： 页面链接?参数=值 -->
+                <a href="article_edit.html?{{$value.id}}" class="btn btn-default btn-xs"
+                  >编辑</a
+                >
+                      <!-- 以后要根据标签上的 data-id 获取当前点击按钮实现删除 -->
+                <a
+                  href="javascript:void(0);" data-id='{{$value.id}}'
+                  class="btn btn-danger btn-xs delete"
+                  >删除</a
+                >
+              </td>
+            </tr>
+            {{/each}}
+    </script>
+    <script>
+      $(function() {
+        $.ajax({
+          type: "get",
+          url: BigNew.category_list,
+          dataType: "json",
+          success: function(response) {
+            console.log(response);
+            if (response.code === 200) {
+              $("#selCategory").html(template("hore", response));
+            }
+          }
+        });
+        // 文章搜索
+        // 请求地址：/admin/article/query
+        // 请求方式：get
+        // 请求参数：
+        // |  名称   |  类型  | 说明                                         |
+        // | :-----: | :----: | -------------------------------------------- |
+        // |   key   | string | 搜索关键词，可以为空，为空返回某类型所有文章 |
+        // |  type   | string | 文章类型id，可以为空，为空返回所有类型文章   |
+        // |  state  | string | 文章状态，草稿 ，已发布,为空返回所有状态文章 |
+        // |  page   | number | 当前页，为空返回第1页                        |
+        // | perpage | number | 每页显示条数，为空默认每页6条                |
 
+        $("#btnSearch").click(function(e) {
+          // 默认行为影响到了请求，就把默认行为干掉
+          e.preventDefault();
+          // 文章搜索接口所需的参数
+          let type = $("#selCategory").val(); // 文章分类 id 值（获取下拉框的值）
+          let state = $("#selStatus").val(); // 发布状态的下拉框的值
+          let key = ""; // 搜索关键词，可以为空
+          let page = 1; // 当前页，为空返回第1页
+          let perpage = 10; // 每页显示条数
+          $.ajax({
+            type: "get",
+            url: BigNew.article_query,
+            data: {
+              type: type,
+              state: state,
+              perpage: perpage
+            },
+            dataType: "json",
+            success: function(response) {
+              console.log(response);
+              if (response.code === 200) {
+                $(".table tbody").html(template("newsTr", response));
+              }
+            }
+          });
+        });
+        // 进入页面后，主动触发一次，获取到不分文章类型和不分文章状态的数据。
+        $("#btnSearch").click();
+      });
+    </script>
+  </body>
 </html>
