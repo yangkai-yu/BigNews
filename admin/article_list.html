@@ -9,10 +9,12 @@
     <link rel="stylesheet" href="./css/reset.css" />
     <link rel="stylesheet" href="./css/iconfont.css" />
     <link rel="stylesheet" href="./css/main.css" />
-
     <script src="./libs/jquery-1.12.4.min.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
+    <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
+    <!-- 分页插件引入 -->
+    <script src="./libs/jquery.twbsPagination.js"></script>
   </head>
   <body>
     <div class="container-fluid">
@@ -80,7 +82,10 @@
             </tr>
           </tbody>
         </table>
-        <div class="row text-center"></div>
+        <div class="row text-center">
+          <!-- 这里写入分页器的基本结构 -->
+          <ul id="pagination-demo" class="pagination-sm"></ul>
+        </div>
       </div>
     </div>
     <script src="./js/http.js"></script>
@@ -145,35 +150,86 @@
         // |  state  | string | 文章状态，草稿 ，已发布,为空返回所有状态文章 |
         // |  page   | number | 当前页，为空返回第1页                        |
         // | perpage | number | 每页显示条数，为空默认每页6条                |
+        // 文章搜索接口所需的参数-初始化公共的数据
+        let type = ""; // 文章分类 id 值（获取下拉框的值）
+        let state = ""; // 发布状态的下拉框的值
+        let key = ""; // 搜索关键词，可以为空
+        let page = 1; // 当前页，为空返回第1页
+        let perpage = 10; // 每页显示条数
 
         $("#btnSearch").click(function(e) {
           // 默认行为影响到了请求，就把默认行为干掉
           e.preventDefault();
-          // 文章搜索接口所需的参数
-          let type = $("#selCategory").val(); // 文章分类 id 值（获取下拉框的值）
-          let state = $("#selStatus").val(); // 发布状态的下拉框的值
-          let key = ""; // 搜索关键词，可以为空
-          let page = 1; // 当前页，为空返回第1页
-          let perpage = 10; // 每页显示条数
+          // 在点击按钮的时候，给外面 type 和 state 重新赋值，用于 ajax 请求
+          type = $("#selCategory").val(); // 1。获取分类下拉框的值
+          state = $("#selStatus").val(); // 2。获取文章状态下拉框的值
+          page = 1;
+          // 调用一下封装的 ajax 获取列表的函数
+          ajaxGetList();
+        });
+
+        // 进入页面后，主动触发一次，获取到不分文章类型和不分文章状态的数据。
+        $("#btnSearch").click();
+
+        function ajaxGetList() {
+          // 通过 ajax 获取到文章列表数据
           $.ajax({
             type: "get",
             url: BigNew.article_query,
             data: {
-              type: type,
-              state: state,
-              perpage: perpage
+              type: type, // 文章类别 id
+              state: state, // 文章状态
+              perpage: perpage, // 每页显示条数
+              page: page // 当前页
             },
             dataType: "json",
             success: function(response) {
-              console.log(response);
+              // console.log(response);
               if (response.code === 200) {
                 $(".table tbody").html(template("newsTr", response));
+                // ajax 请求成功后，动态生成一个分页器
+                // 获取后端返回的数据总页数
+                const total = response.data.totalPage;
+                // 把 ajax 请求获取的总页数传递，默认显示 page 页
+                createPagination(total, page);
               }
             }
           });
-        });
-        // 进入页面后，主动触发一次，获取到不分文章类型和不分文章状态的数据。
-        $("#btnSearch").click();
+        }
+
+        // 把动态生成分页器的代码抽离，并开放两个参数
+        //      totalPages       动态生成多少个分页(数值)
+        //      startPage        当前第几页(数值)
+        function createPagination(totalPages, startPage) {
+          // 1. 销毁旧的分页器
+          $("#pagination-demo").twbsPagination("destroy");
+          // 2. 创建一个分页器
+          $("#pagination-demo").twbsPagination({
+            // 总页数
+            totalPages: totalPages,
+            // 可见的页数上限
+            // 当前第几页
+            startPage: startPage,
+            // 可见的页数上限
+            visiblePages: 7,
+            first: "首页",
+            prev: "上一页",
+            next: "下一页",
+            last: "尾页",
+            // 当页码点击时候触发的回调函数
+            // 注意事项：分页器会自动帮我们触发一下 startPage 当前页
+            onPageClick: function(event, currentPage) {
+              console.log("currentPage", currentPage);
+              // 把当前点击的页数，赋值给公共的 page 变量中，作为新的 ajax 请求参数
+              page = currentPage;
+              // 只有在 startPage(当前页) 和 currentPage(点击页) 不一样的时候再获取新数据
+              if (startPage !== currentPage) {
+                // 再次发起 ajax 请求，根据点击的当前页获取到新的列表
+                ajaxGetList();
+              }
+            }
+          });
+        }
       });
     </script>
   </body>
